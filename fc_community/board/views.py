@@ -1,7 +1,34 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Board
+from fcuser.models import Fcuser
+from .form import BoardForm
 
 # Create your views here.
+
+
+def board_detail(request, pk):
+    board = Board.objects.get(pk=pk)
+    return render(request, 'board_detail.html', {'board': board})
+
+
+def board_writer(request):
+
+    if request.method == 'POST':
+        form = BoardForm(request.POST)
+        if form.is_valid():
+            user_id = request.session.get('user')
+            fcuser = Fcuser.objects.get(pk=user_id)
+            board = Board()
+            board.title = form.cleaned_data.get('title')
+            board.contents = form.cleaned_data.get('contents')
+            board.writer = fcuser
+            board.save()
+            return redirect('/board/list')
+
+    else:
+        form = BoardForm()
+
+    return render(request, 'board_writer.html', {'form': form})
 
 
 def board_list(request):
