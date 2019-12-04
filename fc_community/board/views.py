@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import Http404
 from .models import Board
 from fcuser.models import Fcuser
 from .form import BoardForm
@@ -7,11 +8,18 @@ from .form import BoardForm
 
 
 def board_detail(request, pk):
-    board = Board.objects.get(pk=pk)
+    try:
+        board = Board.objects.get(pk=pk)
+    except Board.DoesNotExist:
+        raise Http404('게시글을 찾을 수 없습니다.')
+
     return render(request, 'board_detail.html', {'board': board})
 
 
 def board_writer(request):
+
+    if not request.session.get('user'):
+        return redirect('/fcuser/login/')
 
     if request.method == 'POST':
         form = BoardForm(request.POST)
@@ -23,7 +31,7 @@ def board_writer(request):
             board.contents = form.cleaned_data.get('contents')
             board.writer = fcuser
             board.save()
-            return redirect('/board/list')
+            return redirect('/board/list/')
 
     else:
         form = BoardForm()

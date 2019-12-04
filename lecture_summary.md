@@ -60,6 +60,51 @@ class Fcuser(models.Model):
 -   run server
     -   python3 manage.py runserver <0.0.0.0:port>
 
+## admin화면 model 표출하기
+
+-   app package의 admin.py를 작성해야한다.
+
+```python
+# board > models.py
+from django.db import models
+
+class Board(models.Model):
+    objects = None
+    title = models.CharField(max_length=128, verbose_name='제목')
+    contents = models.TextField(verbose_name='내용')
+    writer = models.ForeignKey(
+        'fcuser.Fcuser', on_delete=models.CASCADE, verbose_name='작성자')
+    registered_dttm = models.DateTimeField(
+        auto_now_add=True, verbose_name='등록시간')
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        # table name 지정
+        db_table = 'fastcampus_board'
+        # admin 게시판에 보여줄 명
+        verbose_name = '패스트캠퍼스 게시글'
+        verbose_name_plural = '패스트캠퍼스 게시글들'
+
+---
+
+# board > admin.py
+
+from django.contrib import admin
+from .models import Board
+
+class BoardAdmin(admin.ModelAdmin):
+    list_display = ('title', 'writer') # 리스트에 표출 할 속성
+
+admin.site.register(Board, BoardAdmin)  # admin에 등록
+
+```
+
+![](./images/django_admin1.png)
+![](./images/django_admin2.png)
+
 # Tip
 
 -   django 버전확인 : python3 -m django --version
+-   makemigrations 실행 후 model detected 못할때는 `python manage.py makemigrations myapp` app이름 명시해 하도록 한다.

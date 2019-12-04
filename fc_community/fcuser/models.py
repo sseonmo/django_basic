@@ -5,6 +5,7 @@ from django.db import models
 
 class Fcuser(models.Model):
     # filed : username, password, registered_dttm
+    DoesNotExist = None
     objects = None
     username = models.CharField(max_length=32, verbose_name='사용자명')
     # email validation check 포함되어있다.
