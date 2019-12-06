@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
+from django.core.paginator import Paginator
 from .models import Board
 from fcuser.models import Fcuser
 from .form import BoardForm
@@ -40,5 +41,8 @@ def board_writer(request):
 
 
 def board_list(request):
-    boards = Board.objects.all().order_by('-id')
+    all_boards = Board.objects.all().order_by('-id')
+    page = int(request.GET.get('curPage', 1))
+    paginator = Paginator(all_boards, 2)
+    boards = paginator.get_page(page)
     return render(request, 'board_list.html', {'boards': boards})
