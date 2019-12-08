@@ -60,7 +60,7 @@ class Fcuser(models.Model):
 -   run server
     -   python3 manage.py runserver <0.0.0.0:port>
 
-## admin화면 model 표출하기
+## admin화면 models 표출하기
 
 -   app package의 admin.py를 작성해야한다.
 
@@ -103,6 +103,75 @@ admin.site.register(Board, BoardAdmin)  # admin에 등록
 
 ![](./images/django_admin1.png)
 ![](./images/django_admin2.png)
+
+## model과 model 관계설정
+
+```python
+# 1(Fcuser) :  n(Board)
+# n(TAG)    :  m(Board)
+# Board
+class Board(models.Model):
+    ...
+    writer = models.ForeignKey(
+        'fcuser.Fcuser', on_delete=models.CASCADE, verbose_name='작성자')
+    tags = models.ManyToManyField('tag.Tag', verbose_name='태그')
+    ...
+```
+
+## PythonAnywhere 배포준비
+
+```python
+# setting.py
+# 1. DEBUG False 로 변경
+DEBUG = False
+
+# 2. 허용할 HOST
+ALLOWED_HOSTS = [
+    'seonmo.pythonanywhere.com'
+]
+
+# 3. STATIC_ROOT
+"""
+STATICFILES_DIRS 은 개발 단계에서 사용하는 정적 파일이 위치한 경로들을 지정하는 설정 항목이므로 주석처리한다.
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+STATIC_ROOT는 Django 프로젝트에서 사용하는 모든 정적 파일을 한 곳에 모아넣는 경로입니다
+한 곳에 모으는 기능은 manage.py 파일의 collectstatic 명령어로 수행한다,
+"""
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+```
+
+# pythonanywhere 배포하가
+
+1. project 압축( zip)
+2. pythonanywhere zip upload
+3. pythonanywhere - top: [Files] Menu click
+    - 상단 `open Bash console here` click
+4. unzip fc_community.zip
+5. virtualenv --python=python3.7 fc_env
+6. source fc_env/bin/activate
+7. pip install django
+8. cd fc_commuvity
+9. python manage.py collectstatic
+10. python manage.py migrate
+11. pythonanywhere - top: [Web] Menu click
+12. Web 생성
+13. Web Configuration - 자신의 환경에 맞게 설정
+    - Code : Source code
+    - WSGI configuration file
+    - Virtualenv : 경로설정
+    - static : 경로설정
+14. Reload : reload button click
+
+-   Code / Virtualenv
+    ![](./images/pythonanywhere2.png)
+-   WSGI
+    ![](./images/pythonanywhere1.png)
+-   Static files
+    ![](./images/pythonanywhere3.png)
+-   Reload
+    ![](./images/pythonanywhere4.png)
 
 # Tip
 
